@@ -1,0 +1,105 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.9.2/themes/base/jquery-ui.css"/>
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
+
+<input type="file" id="file">
+
+<a id="btn">Download</a>
+
+<div id="canvas">
+</div>
+
+<canvas id="real"></canvas>
+
+<style>
+    #canvas {
+        width: 500px;
+        height: 500px;
+        background: white;
+        border: 3px solid black;
+        overflow: hidden;
+        position: relative;
+        margin-top: 10px;
+    }
+
+    #real {
+        width: 500px;
+        height: 500px;
+        background: white;
+        border: 3px solid black;
+        margin-top: 10px;
+        visibility: hidden;
+    }
+
+    #canvas .img_d { 
+        position: absolute;
+        top: 0;
+        left: 0;
+        display: inline-block;
+    }
+
+    #btn {
+        border: 1px solid grey;
+        padding: 5px;
+        background: green;
+        border-radius: 10px;
+        color: white;
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    function addAction(aa) {
+        $(aa).parents(".img_d").draggable();  
+        $(aa).resizable();
+    }
+
+    $(function(){
+        var c=document.getElementById("real");
+        c.height = 500;
+        c.width = 500;
+        c.clientTop = 0;
+        c.clientLeft = 0;
+        var ctx=c.getContext("2d");
+
+        
+
+        $("#file").change(function(){
+            if (this.files && this.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function(e) {
+                    var tt = $("#canvas").append('<div class="img_d"><img class="img_s" onload="addAction(this);" src="' + e.target.result + '"/></div>');
+
+                }
+
+                reader.readAsDataURL(this.files[0]);
+            }
+        });
+
+        $("#btn").click(function(){
+            ctx.clearRect(0, 0, c.width, c.height);
+
+            ctx.beginPath();
+            ctx.rect(0, 0, c.width, c.height);
+            ctx.fillStyle = "white";
+            ctx.fill();
+
+            $("#canvas img").each(function(){
+                var img = this;
+                var img_d = $(this).parents(".img_d");
+                console.log($(this).position().top);
+  
+                ctx.drawImage(img, 0, 0, this.naturalWidth, this.naturalHeight, img_d.position().left, img_d.position().top, this.clientWidth, this.clientHeight);
+            });
+
+            downloadCanvas(this, 'real', 'test.png');
+        });
+
+        function downloadCanvas(link, canvasId, filename) {
+            link.href = document.getElementById(canvasId).toDataURL();
+            link.download = filename;
+        }
+    })
+
+</script>
